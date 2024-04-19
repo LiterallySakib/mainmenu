@@ -185,6 +185,7 @@ void repQty() {
 		cout << setw(10) << left << bookInfoInventory[orderOfData[i]].getQty() << endl;
 	}
 
+
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
