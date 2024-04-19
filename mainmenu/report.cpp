@@ -75,11 +75,9 @@ void repListing() {
 	char continuePress;
 	cout << "Report Module - Listing - " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|AUTHOR------------------------|PUBLISHER---------------------|DATE ADDED|QUANTITY  |RETAIL PRICE|WHOLESALE   |" << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
 		bookInfo(bookInfoInventory[i].getISBN(),
@@ -103,16 +101,19 @@ void repWholesale() {
 	char continuePress;
 	cout << "Report Module - Listing WholeSale - " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|QUANTITY  |WHOLESALE   |" << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[i].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getISBN(), ISBN_MAX_LENGTH);
-		cout << setw(10) << left << bookInfoInventory[i].getQty();
-		cout << showpoint << left << fixed << setprecision(2) << setw(12) << bookInfoInventory[i].getWholesale();
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 	}
 	
 	cout << endl;
@@ -126,17 +127,19 @@ void repRetail() {
 	double totalRetail = 0;
 	cout << "Report Module - Listing Retail- " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|QUANTITY  |RETAIL PRICE  " << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[i].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getISBN(), ISBN_MAX_LENGTH);
-		cout << showpoint << left << fixed << setprecision(2) << setw(12) << bookInfoInventory[i].getRetail();
-		cout << showpoint << setprecision(2) << fixed << setw(10) << left << bookInfoInventory[i].getQty();
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 	}
 
 	for (int i = 0; i < SIZE; i++) {
@@ -173,18 +176,20 @@ void repQty() {
 
 	cout << "Report Module - Listing Qunatity- " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|QUANTITY   " << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getISBN(), ISBN_MAX_LENGTH);
-		cout << setw(10) << left << bookInfoInventory[orderOfData[i]].getQty() << endl;
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 	}
-
 
 	cout << endl;
 	cout << "Press any Key to continue... ";
@@ -215,15 +220,19 @@ void repCost() {
 
 	cout << "Report Module - Listing Wholesale cost sorted- " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|WHOLESALE   " << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getISBN(), ISBN_MAX_LENGTH);
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 		cout << showpoint << setprecision(2) << fixed << setw(10) << left << bookInfoInventory[orderOfData[i]].getWholesale() << endl;
 	}
 
@@ -268,17 +277,19 @@ void repAge() {
 
 	cout << "Report Module - Listing by date sorted- " << repDate() << endl;
 	cout << endl;
-	cout << "TITLE--------------------------------------------|ISBN---------|DATE ADDED |QUANTITY  " << endl;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getISBN(), ISBN_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[orderOfData[i]].getDateAdded(), DATE_ADDED_MAX_LENGTH);
-		cout << setw(10) << left << bookInfoInventory[orderOfData[i]].getQty() << endl;
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 	}
 
 	cout << endl;
