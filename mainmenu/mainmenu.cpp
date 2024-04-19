@@ -6,7 +6,6 @@ Project 8
 */
 #include <iostream>
 #include <string>
-#include <fstream>
 #include "bookinfo.h"
 #include "cashier.h"
 #include "invmenu.h"
@@ -16,18 +15,16 @@ using namespace std;
 
 
 BookData bookInfoInventory[SIZE];
-string fileName = "BookData.dat";
-fstream file;
+Inventory file;
 
 int main() {
 
 	//choice declared for capturing user input
 	int choice;
 
-	file.open(fileName, ios::out);
-	file.close();
+	file.glimpse();
 
-	sync(file, fileName, bookInfoInventory, SIZE, SYNCE_FILE_TO_RECORD);
+	file.sync(bookInfoInventory, SIZE, SYNCE_FILE_TO_RECORD);
 	
 
 	//repeats until 4 is entered

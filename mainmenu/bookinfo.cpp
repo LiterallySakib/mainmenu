@@ -1,12 +1,10 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-#include <fstream>
 #include "bookinfo.h"
 using namespace std;
 
-extern fstream file;
-extern string fileName;
+extern Inventory file;
 extern BookData bookInfoInventory[SIZE];
 
 
@@ -28,9 +26,9 @@ void bookInfo(char isbn[], char title[], char author[], char publisher[], char d
 
 
 //function that updates the structure array by reading and writing with the file 
-void sync(fstream& file, string fileName, BookData arr[], int size, int choice) {
+void Inventory::sync(BookData arr[], int size, int choice) {
     //open the file
-    file.open(fileName, ios::in | ios::out | ios::binary);
+    file.open(file_name, ios::in | ios::out | ios::binary);
 
     //if the file isn't open then end the function
     if (!file.is_open()) {
@@ -53,13 +51,13 @@ void sync(fstream& file, string fileName, BookData arr[], int size, int choice) 
 }
 
 //function that searches the file for a certain book and then returns the information of that found book
-BookData searchFileBook(fstream& file, string fileName, char target[]) {
+BookData Inventory::searchFileBook(char target[]) {
 
     //make an empty book structure
     BookData temp;
 
     //open the file
-    file.open(fileName, ios::in | ios::binary);
+    file.open(file_name, ios::in | ios::binary);
 
     //if the file is unable to be opened terminate program
     if (file.fail()) {
@@ -91,7 +89,7 @@ BookData searchFileBook(fstream& file, string fileName, char target[]) {
 }
 
 //function that searchs for a certain book within the file and returns the location of the book within the file
-int searchFile(fstream& file, string fileName, char target[]) {
+int Inventory::searchFile(char target[]) {
 
     //the location is default to init -1 so that errors be fired when no book is found
     int found = -1;
@@ -100,7 +98,7 @@ int searchFile(fstream& file, string fileName, char target[]) {
     BookData temp;
 
     //open the file
-    file.open(fileName, ios::in | ios::binary);
+    file.open(file_name, ios::in | ios::binary);
 
     //if the file fails to open then terminate the program
     if (file.fail()) {
@@ -133,96 +131,38 @@ int searchFile(fstream& file, string fileName, char target[]) {
     return found;
 }
 
-//function that adds a certain book into the file's data base
-void addToFileAtEmpty(fstream& file, string fileName, BookData target) {
-
-    //Dynamically allocated array that captures the file data in array form
-    BookData* ptrArr = nullptr;
-
-    //variable that captures the size of the file in bytes
-    streampos fileSize;
-
-    //establish what empty book looked like the file
-    char empty[] = { '/' };
-
-    //search for empty books in the file
-    int index = searchFile(file, fileName, empty);
-
-    //open file
-    file.open(fileName, ios::in | ios::out | ios::binary);
-
-    //if the file fails to open, then terminate the function
-    if (file.fail()) {
-        cout << "Cannot open file" << endl;
-        delete[] ptrArr;
-        file.clear();
-        file.close();
-        return;
-    }
-    //clear fail bit within file
-    file.clear();
-
-    //get the file sizr and dynamically allocate a pointer array using that file size
-    file.seekg(0L, ios::end);
-    fileSize = file.tellg();
-    ptrArr = new BookData[fileSize / sizeof(BookData)];
-
-
-    //read file to array
-    file.seekg(0L, ios::beg);
-    file.read(reinterpret_cast<char*>(ptrArr), fileSize);
-
-    //if an empty slot is not found then terminate the function 
-    if (index == -1) {
-        delete[] ptrArr;
-        file.close();
-        return;
-    }
-    else {
-        //else set the dynamically allocated array at found location to the date of the target
-        ptrArr[index] = target;
-    }
-
-    //write the array to the program
-    file.seekp(0L, ios::beg);
-    file.write(reinterpret_cast<char*>(ptrArr), fileSize);
-
-    delete[] ptrArr;
-    file.close();
-}
-
 //funcion that replaces a certain book listing int the file with a specified new book
-void modifyFile(fstream& file, string fileName, int target, BookData modified) {
+void Inventory::modifyFile(int target, BookData modified) {
 
-    file.open(fileName, ios::in | ios::out | ios::binary);
+    file.open(file_name, ios::in | ios::out | ios::binary);
 
     //variable that captures the size of the file in bytes
-    int fileSize;
+    streampos file_size;
     file.seekg(0, ios::end);
-    fileSize = file.tellg();
-    BookData* ptrArr = nullptr;
-    ptrArr = new BookData[fileSize / sizeof(BookData)];
+    file_size = file.tellg();
+    BookData* intermediary_array = nullptr;
+    intermediary_array = new BookData[file_size / sizeof(BookData)];
 
     //if the file fails to open terminate the function
     if (!file.is_open()) {
         cout << "Cannot open file" << endl;
-        delete[] ptrArr;
+        delete[] intermediary_array;
         file.close();
         return;
     }
 
     file.seekg(0L, ios::beg);
-    file.read(reinterpret_cast<char*>(ptrArr), fileSize);
+    file.read(reinterpret_cast<char*>(intermediary_array), file_size);
 
     //replace pre-existing bookdata slot with new data 
-    ptrArr[target] = modified;
+    intermediary_array[target] = modified;
 
     //overwrite entire array on the the file
     file.seekp(0L, ios::beg);
-    file.write(reinterpret_cast<char*>(ptrArr), fileSize);
+    file.write(reinterpret_cast<char*>(intermediary_array), file_size);
 
     //closing
-    delete[] ptrArr;
+    delete[] intermediary_array;
     file.close();
 }
 
@@ -235,25 +175,6 @@ void strUpper(char* arr)
         arr[i] = toupper(arr[i]);
     }
 
-}
-
-void swap(int& x, int& y) {
-    int temp = x;
-    x = y;
-    y = temp;
-}
-
-void swap(double& x, double& y) {
-    double temp = x;
-    x = y;
-    y = temp;
-}
-
-void swap(Date& x, Date& y) {
-    Date temp;;
-    temp = x;
-    x = y;
-    y = temp;
 }
 
 //function that translate c++ __DATE__ macro into MM/DD/YYYY
@@ -322,25 +243,23 @@ string repDate() {
 
 //function that calculatws the amount of empty space in the inventory
 int availableSlots() {
-    int availableSlots = 0;
+    int available_slots = 0;
     for (int i = 0; i < SIZE; i++) {
         if (bookInfoInventory[i].isEmpty() == 1) {
-            availableSlots++;
+            available_slots++;
         }
     }
-    return availableSlots;
+    return available_slots;
 }
 
-//function that returns which date is more older thand the other
-bool isOlder(Date day1, Date day2) {
-
-    if (day1.year > day2.year) {
+bool Date::operator>(const Date& day2) {
+    if (this->year > day2.year) {
         return true;
     }
-    else if (day1.year == day2.year && day1.month > day2.month) {
+    else if (this->year == day2.year && this->month > day2.month) {
         return true;
     }
-    else if (day1.year == day2.year && day1.month == day2.month && day1.day > day2.day) {
+    else if (this->year == day2.year && this->month == day2.month && this->day > day2.day) {
         return true;
     }
     else {
@@ -348,76 +267,134 @@ bool isOlder(Date day1, Date day2) {
     }
 }
 
-//function that appends spacing to a char array for when they are displayed in report.cpp
-void bookInfoLine(char arr[], int length) {
+Date& Date::operator=(const Date& day2) {
 
-    char *display_arr = nullptr;
-    display_arr = new char[length];
-    for (int j = 0; j < length; j++) {
-        if (arr[j] != '\0') {
-            display_arr[j] = arr[j];
-        }
-        else {
-            display_arr[j] = ' ';
-        }
-    }
-    for (int j = 0; j < length; j++) {
-        cout << display_arr[j];
+    //address validation so self assignment is avoided
+    if (this != &day2) {
+        this->day = day2.day;
+        this->month = day2.month;
+        this->year = day2.year;
     }
 
-    delete[] display_arr;
-    display_arr = nullptr;
+    return *this;
 }
 
+
+
+//default constructor for BookData class
+BookData::BookData() {
+    for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
+        bookTitle[i] = '\0';
+    }
+    for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
+        isbn[i] = '\0';
+    }
+    for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
+        dateAdded[i] = '\0';
+    }
+    for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
+        author[i] = '\0';
+    }
+    for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
+        publisher[i] = '\0';
+    }
+
+    qtyOnHand = 0;
+    wholesale = 0;
+    retail = 0;
+}
+
+//construcr for all feilds in BookData class
+BookData::BookData(const char title[], const char isbni[], const char authori[], const char date[], const char publisheri[], int qty, double wholesail, double price) {
+    for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
+        bookTitle[i] = title[i];
+    }
+    for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
+        isbn[i] = isbni[i];
+    }
+    for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
+        dateAdded[i] = date[i];
+    }
+    for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
+        author[i] = authori[i];
+    }
+    for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
+        publisher[i] = publisheri[i];
+    }
+
+    qtyOnHand = qty;
+    wholesale = wholesail;
+    retail = price;
+}
+
+//mutator method for bookTitle
 void BookData::setTitle(char str[]) {
     for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
        bookTitle[i] = str[i];
     }
 }
 
+//mutator method for isbn
 void BookData::setISBN(char str[]) {
     for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
         isbn[i] = str[i];
     }
 }
 
+//mutator method for author
 void BookData::setAuthor(char str[]) {
     for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
         author[i] = str[i];
     }
 }
 
+//mutator method for publisher
 void BookData::setPub(char str[]) {
     for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
         publisher[i] = str[i];
     }
 }
 
+//mutator method for date added
 void BookData::setDateAdded(char str[]) {
     for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
         dateAdded[i] = str[i];
     }
 }
 
+//mutator method for qunaitity
 void BookData::setQty(int inputQty) {
     qtyOnHand = inputQty;
 }
 
+//mutator method for wholesale
 void BookData::setWholesale(double inputWholesale) {
     wholesale = inputWholesale;
 }
 
+//mutator method for retail cost
 void BookData::setRetail(double inputRetail) {
     retail = inputRetail;
 }
 
+//method for assessing if an object is empty
 int BookData::isEmpty() {
-    if (bookTitle[0] == '\0' || bookTitle[0] == '/') {
+    if (bookTitle[0] == '\0') {
         return 1;
     }
     return 0;
 }
 
+//method for assessing if an booktitle of object is similar to a given text
+bool BookData::bookMatch(char target[]) {
+    bool isMatch = false;
+    if (strstr(bookTitle, target) != nullptr) {
+        isMatch = true;
+    }
+    return isMatch;
+}
+
+//mutator method for deleting book
 void BookData::removeBook() {
     for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
         bookTitle[i] = '\0';
@@ -440,73 +417,10 @@ void BookData::removeBook() {
     retail = 0;
 }
 
-void selectionSort(int referenceToOrder[], int order[], int availableListings) {
-    int maxIndex = 0,
-        maxValue = 0;
+void orderInit(int order_of_data[]) {
 
-    for (int i = 0; i < availableListings; i++) {
-
-        maxIndex = i;
-        maxValue = referenceToOrder[i];
-
-        for (int j = i; j < availableListings; j++) {
-            if (maxValue < referenceToOrder[j]) {
-                maxIndex = j;
-                maxValue = referenceToOrder[j];
-            }
-        }
-
-        swap(referenceToOrder[i], referenceToOrder[maxIndex]);
-        swap(order[i], order[maxIndex]);
-    }
-}
-
-void orderInit(int OrderOfDate[]) {
-    char order[SIZE] = {0};
-            for (int i = 0; i < SIZE; i++) {
-        order[i] = i;
-    }
-}
-
-void selectionSort(double referenceToOrder[], int order[], int availableListings) {
-    int maxIndex = 0;
-    double maxValue = 0;
-
-    for (int i = 0; i < availableListings; i++) {
-
-        maxIndex = i;
-        maxValue = referenceToOrder[i];
-
-        for (int j = i; j < availableListings; j++) {
-            if (maxValue < referenceToOrder[j]) {
-                maxIndex = j;
-                maxValue = referenceToOrder[j];
-            }
-        }
-
-        swap(referenceToOrder[i], referenceToOrder[maxIndex]);
-        swap(order[i], order[maxIndex]);
-    }
-}
-
-void selectionSort(Date referenceToOrder[], int order[], int availableListings) {
-    int maxIndex = 0;
-    Date maxValue;
     for (int i = 0; i < SIZE; i++) {
-
-        maxIndex = i;
-        maxValue = referenceToOrder[i];
-
-        for (int j = i; j < SIZE; j++) {
-            if (isOlder(maxValue, referenceToOrder[j])) {
-                maxIndex = j;
-                maxValue.year = referenceToOrder[j].year;
-                maxValue.month = referenceToOrder[j].month;
-                maxValue.day = referenceToOrder[j].day;
-            }
-        }
-
-        swap(referenceToOrder[i], referenceToOrder[maxIndex]);
-        swap(order[i], order[maxIndex]);
+        order_of_data[i] = i;
     }
 }
+

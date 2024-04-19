@@ -7,7 +7,7 @@
 
 using namespace std;
 
-extern fstream file;
+extern Inventory file;
 extern BookData bookInfoInventory[SIZE];
 
 void cashier() {

@@ -7,8 +7,7 @@
 
 using namespace std;
 
-extern fstream file;
-extern string fileName;
+extern Inventory file;
 extern BookData bookInfoInventory[SIZE];
 
 void report() {
@@ -71,8 +70,36 @@ void report() {
 	} while (choice != 7);
 }
 
+template <typename T>
+void swapC(T& x, T& y) {
+	T temp = x;
+	x = y;
+	y = temp;
+}
+
+template <typename T>
+void selectionSort(T order_of_sorted_attribute[], int order_of_data[]) {
+	int maxIndex = 0;
+	T maxValue;
+	for (int i = 0; i < SIZE; i++) {
+
+		maxIndex = i;
+		maxValue = order_of_sorted_attribute[i];
+
+		for (int j = i; j < SIZE; j++) {
+			if (maxValue > order_of_sorted_attribute[j]) {
+				maxIndex = j;
+				maxValue = order_of_sorted_attribute[j];
+			}
+		}
+
+		swapC<T>(order_of_sorted_attribute[i], order_of_sorted_attribute[maxIndex]);
+		swapC<int>(order_of_data[i], order_of_data[maxIndex]);
+	}
+}
+
 void repListing() {
-	char continuePress;
+	char continue_press;
 	cout << "Report Module - Listing - " << repDate() << endl;
 	cout << endl;
 
@@ -93,12 +120,12 @@ void repListing() {
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 
 }
 
 void repWholesale() {
-	char continuePress;
+	char continue_press;
 	cout << "Report Module - Listing WholeSale - " << repDate() << endl;
 	cout << endl;
 
@@ -119,12 +146,12 @@ void repWholesale() {
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 }
 
 void repRetail() {
-	char continuePress;
-	double totalRetail = 0;
+	char continue_press;
+	double total_retail = 0;
 	cout << "Report Module - Listing Retail- " << repDate() << endl;
 	cout << endl;
 
@@ -143,22 +170,21 @@ void repRetail() {
 	}
 
 	for (int i = 0; i < SIZE; i++) {
-		totalRetail += bookInfoInventory[i].getRetail();
+		total_retail += bookInfoInventory[i].getRetail();
 	}
 	
 	cout << endl;
-	cout << showpoint << setprecision(2) << fixed << "The Total Retail value is $" << totalRetail;
+	cout << showpoint << setprecision(2) << fixed << "The Total Retail value is $" << total_retail;
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 }
 
 void repQty() {
 	int temp_quantity[SIZE] = { 0 };
-	int orderOfData[SIZE] = { 0 };
-	int availableItems = availableSlots();
-	char continuePress;
+	int order_of_data[SIZE] = { 0 };
+	char continue_press;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() != 1) {
@@ -169,10 +195,8 @@ void repQty() {
 		}
 	}
 
-	for (int i = 0; i < SIZE; i++) {
-		orderOfData[i] = i;
-	}
-	selectionSort(temp_quantity, orderOfData, SIZE);
+	orderInit(order_of_data);
+	selectionSort<int>(temp_quantity, order_of_data);
 
 	cout << "Report Module - Listing Qunatity- " << repDate() << endl;
 	cout << endl;
@@ -181,42 +205,40 @@ void repQty() {
 		if (bookInfoInventory[i].isEmpty() == 1) {
 			continue;
 		}
-		bookInfo(bookInfoInventory[i].getISBN(),
-			bookInfoInventory[i].getTitle(),
-			bookInfoInventory[i].getAuthor(),
-			bookInfoInventory[i].getPub(),
-			bookInfoInventory[i].getDateAdded(),
-			bookInfoInventory[i].getQty(),
-			bookInfoInventory[i].getWholesale(),
-			bookInfoInventory[i].getRetail());
+		bookInfo(bookInfoInventory[order_of_data[i]].getISBN(),
+			bookInfoInventory[order_of_data[i]].getTitle(),
+			bookInfoInventory[order_of_data[i]].getAuthor(),
+			bookInfoInventory[order_of_data[i]].getPub(),
+			bookInfoInventory[order_of_data[i]].getDateAdded(),
+			bookInfoInventory[order_of_data[i]].getQty(),
+			bookInfoInventory[order_of_data[i]].getWholesale(),
+			bookInfoInventory[order_of_data[i]].getRetail());
 	}
 
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 
 }
 
 void repCost() {
-	double temp_Wholesale[SIZE] = { 0 };
-	int orderOfData[SIZE] = { 0 };
-	int availableItems = availableSlots();
-	char continuePress;
+	double temp_wholesale[SIZE] = { 0 };
+	int order_of_data[SIZE] = { 0 };
+	char continue_press;
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() != 1) {
-			temp_Wholesale[i] = bookInfoInventory[i].getWholesale();
+			temp_wholesale[i] = bookInfoInventory[i].getWholesale();
 		}
 		else {
-			temp_Wholesale[i] = -1;
+			temp_wholesale[i] = -1;
 		}
 		
 	}
-	for (int i = 0; i < SIZE; i++) {
-		orderOfData[i] = i;
-	}
-	selectionSort(temp_Wholesale, orderOfData, SIZE);
+
+	orderInit(order_of_data);
+	selectionSort<double>(temp_wholesale, order_of_data);
 
 	cout << "Report Module - Listing Wholesale cost sorted- " << repDate() << endl;
 	cout << endl;
@@ -225,55 +247,49 @@ void repCost() {
 		if (bookInfoInventory[i].isEmpty() == 1) {
 			continue;
 		}
-		bookInfo(bookInfoInventory[i].getISBN(),
-			bookInfoInventory[i].getTitle(),
-			bookInfoInventory[i].getAuthor(),
-			bookInfoInventory[i].getPub(),
-			bookInfoInventory[i].getDateAdded(),
-			bookInfoInventory[i].getQty(),
-			bookInfoInventory[i].getWholesale(),
-			bookInfoInventory[i].getRetail());
-		cout << showpoint << setprecision(2) << fixed << setw(10) << left << bookInfoInventory[orderOfData[i]].getWholesale() << endl;
+		bookInfo(bookInfoInventory[order_of_data[i]].getISBN(),
+			bookInfoInventory[order_of_data[i]].getTitle(),
+			bookInfoInventory[order_of_data[i]].getAuthor(),
+			bookInfoInventory[order_of_data[i]].getPub(),
+			bookInfoInventory[order_of_data[i]].getDateAdded(),
+			bookInfoInventory[order_of_data[i]].getQty(),
+			bookInfoInventory[order_of_data[i]].getWholesale(),
+			bookInfoInventory[order_of_data[i]].getRetail());
 	}
 
 
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 
 }
 
 void repAge() {
-	int orderOfData[SIZE] = { 0 };
+	int order_of_data[SIZE] = { 0 };
 	string date_intermediary_form[SIZE];
-	Date temp_date[SIZE] = { {0,0,0} };
-	int availableItems = availableSlots();
-	char continuePress;
-	
+	Date temp_date[SIZE];
+	char continue_press;
 
 	for (int i = 0; i < SIZE; i++) {
-		for (int j = 0; j < DATE_ADDED_MAX_LENGTH; j++) {
-			date_intermediary_form[i] += bookInfoInventory[i].getDateAdded()[j];
-		}
+		order_of_data[i] = i;
+		date_intermediary_form[i] = bookInfoInventory[i].getDateAdded();
 	}
 
 	for (int i = 0; i < SIZE; i++) {
-		orderOfData[i] = i;
-	}
-
-	for (int i = 0; i < SIZE; i++) {
-		if (bookInfoInventory[i].isEmpty() != 1) {
-			temp_date[i].month = stoi(date_intermediary_form[i].substr(0, 2));
-			temp_date[i].day = stoi(date_intermediary_form[i].substr(3, 2));
-			temp_date[i].year = stoi(date_intermediary_form[i].substr(6, 4));
+		if (bookInfoInventory[i].isEmpty() == 0) {
+			temp_date[i].setMonth(stoi(date_intermediary_form[i].substr(0, 2)));
+			temp_date[i].setDay(stoi(date_intermediary_form[i].substr(3, 2)));
+			temp_date[i].setYear(stoi(date_intermediary_form[i].substr(6, 4)));
 		}
 		else {
-			temp_date[i] = { -1,-1,-1 };
+			temp_date[i].setDay(-1);
+			temp_date[i].setDay(-1);
+			temp_date[i].setDay(-1);
 		}
 	}
 
-	selectionSort(temp_date, orderOfData, SIZE);
+	selectionSort<Date>(temp_date, order_of_data);
 
 	cout << "Report Module - Listing by date sorted- " << repDate() << endl;
 	cout << endl;
@@ -282,18 +298,18 @@ void repAge() {
 		if (bookInfoInventory[i].isEmpty() == 1) {
 			continue;
 		}
-		bookInfo(bookInfoInventory[i].getISBN(),
-			bookInfoInventory[i].getTitle(),
-			bookInfoInventory[i].getAuthor(),
-			bookInfoInventory[i].getPub(),
-			bookInfoInventory[i].getDateAdded(),
-			bookInfoInventory[i].getQty(),
-			bookInfoInventory[i].getWholesale(),
-			bookInfoInventory[i].getRetail());
+		bookInfo(bookInfoInventory[order_of_data[i]].getISBN(),
+			bookInfoInventory[order_of_data[i]].getTitle(),
+			bookInfoInventory[order_of_data[i]].getAuthor(),
+			bookInfoInventory[order_of_data[i]].getPub(),
+			bookInfoInventory[order_of_data[i]].getDateAdded(),
+			bookInfoInventory[order_of_data[i]].getQty(),
+			bookInfoInventory[order_of_data[i]].getWholesale(),
+			bookInfoInventory[order_of_data[i]].getRetail());
 	}
 
 	cout << endl;
 	cout << "Press any Key to continue... ";
 	cin.ignore();
-	cin.get(continuePress);
+	cin.get(continue_press);
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 using namespace std;
 
 const int SIZE = 20;
@@ -11,8 +12,39 @@ const int DATE_ADDED_MAX_LENGTH = 11;
 const int SYNC_RECORD_TO_FILE = 1;
 const int SYNCE_FILE_TO_RECORD = -1;
 
-struct Date {
+
+
+class Date {
+private:
 	int month, day, year;
+public:
+	Date(int month = 0, int day = 0, int year = 0) {
+		this->month = month;
+		this->day = day;
+		this->year = year;
+	}
+	int getMonth() const {
+		return month;
+	}
+	int getDay() const {
+		return day;
+	}
+	int getYear() const {
+		return year;
+	}
+	void setMonth(int month) {
+		this->month = month;
+	}
+	void setDay(int day) {
+		this->day = day;
+	}
+	void setYear(int year) {
+		this->year = year;
+	}
+
+	bool operator>(const Date &day2);
+	Date& operator=(const Date& day2);
+
 };
 
 class BookData {
@@ -28,49 +60,9 @@ private:
 	double wholesale,
 		retail;
 public:
-	BookData() {
-		for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
-			bookTitle[i] = '\0';
-		}
-		for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
-			isbn[i] = '\0';
-		}
-		for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
-			dateAdded[i] = '\0';
-		}
-		for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
-			author[i] = '\0';
-		}
-		for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
-			publisher[i] = '\0';
-		}
+	BookData();
 
-		qtyOnHand = 0;
-		wholesale = 0;
-		retail = 0;
-	}
-
-	BookData(char title[], char isbni[], char authori[], char date[], char publisheri[], int qty, double wholesail, double price) {
-		for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
-			bookTitle[i] = title[i];
-		}
-		for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
-			isbn[i] = isbni[i];
-		}
-		for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
-			dateAdded[i] = date[i];
-		}
-		for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
-			author[i] = authori[i];
-		}
-		for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
-			publisher[i] = publisheri[i];
-		}
-
-		qtyOnHand = qty;
-		wholesale = wholesail;
-		retail = price;
-	}
+	BookData(const char title[], const char isbni[], const char authori[], const char date[], const char publisheri[], int qty, double wholesail, double price);
 	void setTitle(char[]);
 	void setISBN(char[]);
 	void setAuthor(char[]);
@@ -106,20 +98,40 @@ public:
 		return qtyOnHand;
 	}
 
+	bool bookMatch(char target[]);
 	
 };
 
-BookData searchFileBook(fstream& file, string fileName, char target[]);
-void sync(fstream& file, string fileName, BookData arr[], int size, int choice);
-void modifyFile(fstream& file, string fileName, int target, BookData modified);
-void addToFileAtEmpty(fstream& file, string fileName, BookData target);
-int searchFile(fstream& file, string fileName, char target[]);
+class Inventory {
+private:
+	fstream file;
+	string file_name;
+public:
+	Inventory() {
+		file_name = "BookData.dat";
+	}
+	string getFileName() {
+		return file_name;
+	}
+	void setFileName(string file_name) {
+		this->file_name = file_name;
+	}
+
+	BookData searchFileBook(char target[]);
+	void sync(BookData arr[], int size, int choice);
+	void modifyFile(int target, BookData modified);
+	int searchFile(char target[]);
+	void glimpse() {
+		file.open(file_name, ios::out);
+		file.close();
+	}
+
+	~Inventory() {
+		file.close();
+	}
+};
+
+void orderInit(int[]);
 void bookInfo(char[], char[], char[], char[], char[], int, double, double);
 void strUpper(char*);
 string repDate();
-int availableSlots();
-bool isOlder(Date,Date);
-void bookInfoLine(char[], int);
-void selectionSort(int[], int [], int);
-void selectionSort(double[] , int[], int);
-void selectionSort(Date referenceToOrder[], int order[], int availableListings);

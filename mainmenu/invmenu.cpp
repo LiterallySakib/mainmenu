@@ -6,8 +6,7 @@
 
 using namespace std;
 
-extern fstream file;
-extern string fileName;
+extern Inventory file;
 extern BookData bookInfoInventory[SIZE];
 
 void invMenu() {
@@ -65,7 +64,7 @@ void lookUpBook() {
 	//declare a variable that captures user input 
 	char titleQuery[BOOK_TITLE_MAX_LENGTH];
 	//declare a variable that captures the index of the target book listing
-	BookData book;
+	int book_location = -1;
 
 	//prompts user for book target
 	cout << "Title: ";
@@ -76,22 +75,27 @@ void lookUpBook() {
 	strUpper(titleQuery);
 
 	//the book is searched for
-	book = searchFileBook(file, fileName, titleQuery);
+	for (int i = 0; i < SIZE; i++) {
+		if (bookInfoInventory[i].bookMatch(titleQuery)) {
+			book_location = i;
+			break;
+		}
+	}
 
 	//the appropriate response is given
-	if (book.isEmpty() == 1) {
+	if (book_location == -1) {
 		cout << "There is no book with That title. " << endl;
 	}
 	else {
 		cout << endl;
-		bookInfo(book.getISBN(),
-			book.getTitle(),
-			book.getAuthor(),
-			book.getPub(),
-			book.getDateAdded(),
-			book.getQty(),
-			book.getWholesale(),
-			book.getRetail());
+		bookInfo(bookInfoInventory[book_location].getISBN(),
+			bookInfoInventory[book_location].getTitle(),
+			bookInfoInventory[book_location].getAuthor(),
+			bookInfoInventory[book_location].getPub(),
+			bookInfoInventory[book_location].getDateAdded(),
+			bookInfoInventory[book_location].getQty(),
+			bookInfoInventory[book_location].getWholesale(),
+			bookInfoInventory[book_location].getRetail());
 	}
 }
 
@@ -108,7 +112,7 @@ void addBook()
 	double inputWholesale, inputRetail;
 	int inputQty;
 
-	sync(file, fileName, bookInfoInventory, SIZE, SYNC_RECORD_TO_FILE);
+	file.sync(bookInfoInventory, SIZE, SYNC_RECORD_TO_FILE);
 
 	//the book is search for
 	for (int i = 0; i < SIZE; i++) {
@@ -167,10 +171,10 @@ void addBook()
 
 
 		//file is updated with new book
-		modifyFile(file, fileName, emptyIndex, bookInfoInventory[emptyIndex]);
+		file.modifyFile(emptyIndex, bookInfoInventory[emptyIndex]);
 	}
 
-	sync(file, fileName, bookInfoInventory, SIZE, SYNCE_FILE_TO_RECORD);
+	file.sync(bookInfoInventory, SIZE, SYNCE_FILE_TO_RECORD);
 }
 
 void editBook() {
@@ -187,7 +191,7 @@ void editBook() {
 	//declare array to capture user input
 	char titleQuery[BOOK_TITLE_MAX_LENGTH];
 	//declare varuable to capture target location
-	int bookLocation = -1;
+	int book_location = -1;
 	//declare variable to caputre the user intended edit ot he listing
 	int editChoice = 0;
 	//declare variable for user input to continue
@@ -199,11 +203,16 @@ void editBook() {
 	cin.getline(titleQuery, BOOK_TITLE_MAX_LENGTH);
 	strUpper(titleQuery);
 
-	//search for the title in the file 
-	bookLocation = searchFile(file, fileName, titleQuery);
+
+	for (int i = 0; i < SIZE; i++) {
+		if (bookInfoInventory[i].bookMatch(titleQuery)) {
+			book_location = i;
+			break;
+		}
+	}
 
 	//if no book is found in file then the appropriate message is made
-	if (bookLocation == -1) {
+	if (book_location == -1) {
 		cout << "There is no book with that title." << endl;
 	}
 	else {
@@ -212,14 +221,14 @@ void editBook() {
 		do {
 			//presents current information of book
 			cout << endl;
-			bookInfo(bookInfoInventory[bookLocation].getISBN(),
-				bookInfoInventory[bookLocation].getTitle(),
-				bookInfoInventory[bookLocation].getAuthor(),
-				bookInfoInventory[bookLocation].getPub(),
-				bookInfoInventory[bookLocation].getDateAdded(),
-				bookInfoInventory[bookLocation].getQty(),
-				bookInfoInventory[bookLocation].getWholesale(),
-				bookInfoInventory[bookLocation].getRetail());
+			bookInfo(bookInfoInventory[book_location].getISBN(),
+				bookInfoInventory[book_location].getTitle(),
+				bookInfoInventory[book_location].getAuthor(),
+				bookInfoInventory[book_location].getPub(),
+				bookInfoInventory[book_location].getDateAdded(),
+				bookInfoInventory[book_location].getQty(),
+				bookInfoInventory[book_location].getWholesale(),
+				bookInfoInventory[book_location].getRetail());
 
 			//prompts which parts to edit
 			cout << endl;
@@ -243,45 +252,53 @@ void editBook() {
 				cin.ignore();
 				cin.getline(inputISBN, ISBN_MAX_LENGTH);
 				strUpper(inputISBN);
+				bookInfoInventory[book_location].setISBN(inputISBN);
 				break;
 			case 2:
 				cout << "Type New Title here: ";
 				cin.ignore();
 				cin.getline(inputTitle, BOOK_TITLE_MAX_LENGTH);
 				strUpper(inputTitle);
+				bookInfoInventory[book_location].setTitle(inputTitle);
 				break;
 			case 3:
 				cout << "Type New Author Name here: ";
 				cin.ignore();
 				cin.getline(inputAuthor, AUTHOR_MAX_LENGTH);
 				strUpper(inputAuthor);
+				bookInfoInventory[book_location].setAuthor(inputAuthor);
 				break;
 			case 4:
 				cout << "Type New Publisher here: ";
 				cin.ignore();
 				cin.getline(inputPublisher, PUBLISHER_MAX_LENGTH);
 				strUpper(inputPublisher);
+				bookInfoInventory[book_location].setPub(inputPublisher);
 				break;
 			case 5:
 				cout << "Type New Date here: ";
 				cin.ignore();
 				cin.getline(inputDateAdded, DATE_ADDED_MAX_LENGTH);
 				strUpper(inputDateAdded);
+				bookInfoInventory[book_location].setDateAdded(inputDateAdded);
 				break;
 			case 6:
 				cout << "Type New Quantity here: ";
 				cin.ignore();
 				cin >> inputQty;
+				bookInfoInventory[book_location].setQty(inputQty);
 				break;
 			case 7:
 				cout << "Type New Wholesale here: ";
 				cin.ignore();
 				cin >> inputWholesale;
+				bookInfoInventory[book_location].setWholesale(inputWholesale);
 				break;
 			case 8:
 				cout << "Type New Retail here: ";
 				cin.ignore();
 				cin >> inputRetail;
+				bookInfoInventory[book_location].setRetail(inputRetail);
 				break;
 			case 9:
 				continueChoice = 's';
@@ -292,18 +309,10 @@ void editBook() {
 				continueChoice = 's';
 				break;
 			}
-
-			bookInfoInventory[bookLocation].setAuthor(inputAuthor);
-			bookInfoInventory[bookLocation].setPub(inputPublisher);
-			bookInfoInventory[bookLocation].setDateAdded(inputDateAdded);
-			bookInfoInventory[bookLocation].setISBN(inputISBN);
-			bookInfoInventory[bookLocation].setTitle(inputTitle);
-			bookInfoInventory[bookLocation].setQty(inputQty);
-			bookInfoInventory[bookLocation].setWholesale(inputWholesale);
-			bookInfoInventory[bookLocation].setRetail(inputRetail);
+			
 
 			//the newly edited version of the book is then saved to the file
-			modifyFile(file, fileName, bookLocation, bookInfoInventory[bookLocation]);
+			file.modifyFile(book_location, bookInfoInventory[book_location]);
 
 			//if 's' is defaulted then skip to the next iteration as invalid input was made
 			if (continueChoice == 's') {
@@ -326,7 +335,7 @@ void deleteBook() {
 	//variable that captures the input for what the user wants to delete
 	char titleQuery[BOOK_TITLE_MAX_LENGTH];
 	//variable that captures the location of the book the user wants to delete
-	int bookLocation = -1;
+	int book_location = -1;
 	char continueChoice = '-';
 
 	//prompts user for title of the book 
@@ -335,23 +344,27 @@ void deleteBook() {
 	cin.getline(titleQuery, BOOK_TITLE_MAX_LENGTH);
 	strUpper(titleQuery);
 
-	//title is searched for in the file
-	bookLocation = searchFile(file, fileName, titleQuery);
+	for (int i = 0; i < SIZE; i++) {
+		if (bookInfoInventory[i].bookMatch(titleQuery)) {
+			book_location = i;
+			break;
+		}
+	}
 
 	//if no such title is found in the file then print the appropriate message
-	if (bookLocation == -1) {
+	if (book_location == -1) {
 		cout << "There is no book with That title. " << endl;
 	}
 	else {
 		//print the found book
-		bookInfo(bookInfoInventory[bookLocation].getISBN(),
-			bookInfoInventory[bookLocation].getTitle(),
-			bookInfoInventory[bookLocation].getAuthor(),
-			bookInfoInventory[bookLocation].getPub(),
-			bookInfoInventory[bookLocation].getDateAdded(),
-			bookInfoInventory[bookLocation].getQty(),
-			bookInfoInventory[bookLocation].getWholesale(),
-			bookInfoInventory[bookLocation].getRetail());
+		bookInfo(bookInfoInventory[book_location].getISBN(),
+			bookInfoInventory[book_location].getTitle(),
+			bookInfoInventory[book_location].getAuthor(),
+			bookInfoInventory[book_location].getPub(),
+			bookInfoInventory[book_location].getDateAdded(),
+			bookInfoInventory[book_location].getQty(),
+			bookInfoInventory[book_location].getWholesale(),
+			bookInfoInventory[book_location].getRetail());
 		cout << endl;
 
 		//promtpt the user for another chance to back out of deleting the book
@@ -360,8 +373,8 @@ void deleteBook() {
 		//if the prompt is confirmed then delelte the book listing in both the 
 		//array and the file
 		if (continueChoice == 'y' || continueChoice == 'Y') {
-			modifyFile(file, fileName, bookLocation, empty);
-			bookInfoInventory[bookLocation].removeBook();
+			file.modifyFile(book_location, empty);
+			bookInfoInventory[book_location].removeBook();
 			cout << "Book data has been deleted." << endl;
 		}
 	}
