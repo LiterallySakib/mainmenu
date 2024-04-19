@@ -82,14 +82,14 @@ void repListing() {
 			cout << "[Empty]" << endl;
 			continue;
 		}
-		bookInfoLine(bookInfoInventory[i].getTitle(), BOOK_TITLE_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getISBN(), ISBN_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getAuthor(), AUTHOR_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getPub(), PUBLISHER_MAX_LENGTH);
-		bookInfoLine(bookInfoInventory[i].getDateAdded(), DATE_ADDED_MAX_LENGTH);
-		cout << setw(10) << left << bookInfoInventory[i].getQty();
-		cout << showpoint << left << fixed << setprecision(2) << setw(12) << bookInfoInventory[i].getRetail();
-		cout << showpoint << left << fixed << setprecision(2) << setw(12) << bookInfoInventory[i].getWholesale();
+		bookInfo(bookInfoInventory[i].getISBN(),
+			bookInfoInventory[i].getTitle(),
+			bookInfoInventory[i].getAuthor(),
+			bookInfoInventory[i].getPub(),
+			bookInfoInventory[i].getDateAdded(),
+			bookInfoInventory[i].getQty(),
+			bookInfoInventory[i].getWholesale(),
+			bookInfoInventory[i].getRetail());
 	}
 
 	cout << endl;
@@ -107,7 +107,6 @@ void repWholesale() {
 
 	for (int i = 0; i < SIZE; i++) {
 		if (bookInfoInventory[i].isEmpty() == 1) {
-			cout << "[Empty]" << endl;
 			continue;
 		}
 		bookInfoLine(bookInfoInventory[i].getTitle(), BOOK_TITLE_MAX_LENGTH);

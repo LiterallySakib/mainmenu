@@ -24,8 +24,10 @@ int main() {
 	//choice declared for capturing user input
 	int choice;
 
-	/*file.open(fileName, ios::out);
-	file.close();*/
+	file.open(fileName, ios::out);
+	file.close();
+
+	sync(file, fileName, bookInfoInventory, SIZE, SYNCE_FILE_TO_RECORD);
 	
 
 	//repeats until 4 is entered

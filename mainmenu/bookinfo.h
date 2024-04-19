@@ -105,6 +105,8 @@ public:
 	int getQty() const {
 		return qtyOnHand;
 	}
+
+	
 };
 
 BookData searchFileBook(fstream& file, string fileName, char target[]);

@@ -26,6 +26,7 @@ void bookInfo(char isbn[], char title[], char author[], char publisher[], char d
 
 }
 
+
 //function that updates the structure array by reading and writing with the file 
 void sync(fstream& file, string fileName, BookData arr[], int size, int choice) {
     //open the file
@@ -193,42 +194,31 @@ void addToFileAtEmpty(fstream& file, string fileName, BookData target) {
 //funcion that replaces a certain book listing int the file with a specified new book
 void modifyFile(fstream& file, string fileName, int target, BookData modified) {
 
-    //Dynamically allocated array that captures the file data in array form
-    BookData* ptrArr = nullptr;
-
-    //variable that captures the size of the file in bytes
-    streampos fileSize;
-
-    //open the file
     file.open(fileName, ios::in | ios::out | ios::binary);
 
+    //variable that captures the size of the file in bytes
+    int fileSize;
+    file.seekg(0, ios::end);
+    fileSize = file.tellg();
+    BookData* ptrArr = nullptr;
+    ptrArr = new BookData[fileSize / sizeof(BookData)];
+
     //if the file fails to open terminate the function
-    if (file.fail()) {
+    if (!file.is_open()) {
         cout << "Cannot open file" << endl;
         delete[] ptrArr;
         file.close();
         return;
     }
 
-    //clear file of fail bit
-    file.clear();
-
-    //get the size of thr file by moving cursor to the very end of the file
-    file.seekg(0, ios::end);
-    fileSize = file.tellg();
-
-    //dynamically allocate the appropriate amount of bookData elements needed
-    ptrArr = new BookData[fileSize / sizeof(BookData)];
-
-    //read from file to the dynamically allocated array
-    file.seekg(0);
+    file.seekg(0L, ios::beg);
     file.read(reinterpret_cast<char*>(ptrArr), fileSize);
 
     //replace pre-existing bookdata slot with new data 
     ptrArr[target] = modified;
 
     //overwrite entire array on the the file
-    file.seekp(0);
+    file.seekp(0L, ios::beg);
     file.write(reinterpret_cast<char*>(ptrArr), fileSize);
 
     //closing
@@ -430,19 +420,19 @@ int BookData::isEmpty() {
 
 void BookData::removeBook() {
     for (int i = 0; i < BOOK_TITLE_MAX_LENGTH; i++) {
-        bookTitle[i] = '/';
+        bookTitle[i] = '\0';
     }
     for (int i = 0; i < ISBN_MAX_LENGTH; i++) {
-        isbn[i] = '/';
+        isbn[i] = '\0';
     }
     for (int i = 0; i < DATE_ADDED_MAX_LENGTH; i++) {
-        dateAdded[i] = '/';
+        dateAdded[i] = '\0';
     }
     for (int i = 0; i < AUTHOR_MAX_LENGTH; i++) {
-        author[i] = '/';
+        author[i] = '\0';
     }
     for (int i = 0; i < PUBLISHER_MAX_LENGTH; i++) {
-        publisher[i] = '/';
+        publisher[i] = '\0';
     }
 
     qtyOnHand = 0;
