@@ -167,9 +167,7 @@ void repRetail() {
 			bookInfoInventory[i].getQty(),
 			bookInfoInventory[i].getWholesale(),
 			bookInfoInventory[i].getRetail());
-	}
 
-	for (int i = 0; i < SIZE; i++) {
 		total_retail += bookInfoInventory[i].getRetail();
 	}
 	
@@ -267,28 +265,14 @@ void repCost() {
 
 void repAge() {
 	int order_of_data[SIZE] = { 0 };
-	string date_intermediary_form[SIZE];
 	Date temp_date[SIZE];
 	char continue_press;
 
 	for (int i = 0; i < SIZE; i++) {
-		order_of_data[i] = i;
-		date_intermediary_form[i] = bookInfoInventory[i].getDateAdded();
+		temp_date[i] = bookInfoInventory[i].getDateAdded();
 	}
-
-	for (int i = 0; i < SIZE; i++) {
-		if (bookInfoInventory[i].isEmpty() == 0) {
-			temp_date[i].setMonth(stoi(date_intermediary_form[i].substr(0, 2)));
-			temp_date[i].setDay(stoi(date_intermediary_form[i].substr(3, 2)));
-			temp_date[i].setYear(stoi(date_intermediary_form[i].substr(6, 4)));
-		}
-		else {
-			temp_date[i].setDay(-1);
-			temp_date[i].setDay(-1);
-			temp_date[i].setDay(-1);
-		}
-	}
-
+	
+	orderInit(order_of_data);
 	selectionSort<Date>(temp_date, order_of_data);
 
 	cout << "Report Module - Listing by date sorted- " << repDate() << endl;

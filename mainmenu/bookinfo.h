@@ -12,8 +12,6 @@ const int DATE_ADDED_MAX_LENGTH = 11;
 const int SYNC_RECORD_TO_FILE = 1;
 const int SYNCE_FILE_TO_RECORD = -1;
 
-
-
 class Date {
 private:
 	int month, day, year;
@@ -44,6 +42,7 @@ public:
 
 	bool operator>(const Date &day2);
 	Date& operator=(const Date& day2);
+	Date& operator=(const char []);
 
 };
 

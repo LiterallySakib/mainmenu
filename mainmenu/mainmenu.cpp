@@ -2,7 +2,7 @@
 Sakib Niaz
 CMSC 226 32240
 Elia Shahbazi
-Project 8
+Project 10
 */
 #include <iostream>
 #include <string>
@@ -11,8 +11,6 @@ Project 8
 #include "invmenu.h"
 #include "report.h"
 using namespace std;
-
-
 
 BookData bookInfoInventory[SIZE];
 Inventory file;

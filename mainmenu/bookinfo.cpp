@@ -279,7 +279,22 @@ Date& Date::operator=(const Date& day2) {
     return *this;
 }
 
+Date& Date::operator=(const char date_in_c_string[]) {
+    string date_intermediary_form = date_in_c_string;
 
+    if (date_in_c_string[0] != '\0') {
+        this->setMonth(stoi(date_intermediary_form.substr(0, 2)));
+        this->setDay(stoi(date_intermediary_form.substr(3, 2)));
+        this->setYear(stoi(date_intermediary_form.substr(6, 4)));
+    }
+    else {
+        this->setDay(-1);
+        this->setDay(-1);
+        this->setDay(-1);
+    }
+    
+    return *this;
+}
 
 //default constructor for BookData class
 BookData::BookData() {
